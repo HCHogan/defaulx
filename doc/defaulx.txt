@@ -1,0 +1,84 @@
+*defaulx.txt*  Neovim's default colorscheme, finished
+
+==============================================================================
+CONTENTS                                                    *defaulx-contents*
+
+  1. Variants ............................................. |defaulx-variants|
+  2. Configuration ....................................... |defaulx-config|
+  3. Caching .............................................. |defaulx-cache|
+  4. Lua API .............................................. |defaulx-api|
+
+==============================================================================
+1. VARIANTS                                                 *defaulx-variants*
+
+                                                 *defaulx-encre* *defaulx-lavis*
+                                                                 *defaulx-velin*
+  defaulx-encre   dark, the built-in default's body text, comments and line
+                  numbers, 14:1 body contrast
+  defaulx-lavis   dark, encre with text and accents one step down
+  defaulx-velin   light, the built-in default light, mirrored
+
+`:colorscheme defaulx` follows 'background': encre when dark, velin when
+light, and switches when 'background' changes. A named variant sets
+'background' itself and stays put.
+
+==============================================================================
+2. CONFIGURATION                                              *defaulx-config*
+
+Call `setup()` before |:colorscheme|. Every field is optional. >lua
+
+  require("defaulx").setup({
+    dark = "encre",
+    light = "velin",
+    transparent = false,
+    styles = {
+      comments = {},
+      keywords = { bold = true },
+      functions = {},
+      variables = {},
+      types = {},
+    },
+    plugins = { all = true },
+    on_palette = function(palette, variant) end,
+    on_highlights = function(hl, c, variant) end,
+    cache = true,
+  })
+<
+  dark, light       variant used by `:colorscheme defaulx` per 'background'
+  transparent       no background on Normal, floats and sidebars
+  styles            extra attributes merged into those syntax groups
+  plugins           integrations; `all` covers every name not listed, so
+                    `{ all = false, snacks = true }` enables snacks only.
+                    Names: blink, flash, gitsigns, mini, noice, snacks,
+                    which-key
+  on_palette        edit palette colors before highlights are built
+  on_highlights     edit the built highlight table; `c` is the palette plus
+                    the role tables `c.syn`, `c.diag`, `c.tint`, `c.git`,
+                    `c.mode`
+  cache             cache customized highlights, see |defaulx-cache|
+
+==============================================================================
+3. CACHING                                                     *defaulx-cache*
+
+With default options, with or without `on_highlights`, defaulx loads the
+precompiled tables shipped in `lua/defaulx/compiled/` and computes nothing.
+Other options are built once and stored as bytecode in
+`stdpath("cache")/defaulx/`. The cache key covers the options, the resolved
+palette and a hash of the plugin's sources.
+
+==============================================================================
+4. LUA API                                                       *defaulx-api*
+
+require("defaulx").setup({opts})                             *defaulx.setup()*
+    Store options for the next |:colorscheme|.
+
+require("defaulx").load({variant})                            *defaulx.load()*
+    Apply a variant; without one, follow 'background'.
+
+require("defaulx").palette({variant})                      *defaulx.palette()*
+    Return the palette of {variant}, or of the active variant.
+
+require("defaulx.compile").clear_cache()              *defaulx.clear_cache()*
+    Delete cached highlights.
+
+ vim:tw=78:ts=8:ft=help:norl:
